@@ -77,8 +77,7 @@ class Tagger:
             all_reps_emb = np.load(str(cache_path) + '.npz')['snomed_encoded']
 
         else:
-            print('Encoding labels..')
-            for i in tqdm(np.arange(0, len(all_names), BATCH_SIZE)):
+            for i in tqdm(np.arange(0, len(all_names), BATCH_SIZE), desc='Encoding SNOMED labels'):
                 toks = self.tokenizer.batch_encode_plus(all_names[i:i + BATCH_SIZE],
                                                         padding="max_length",
                                                         max_length=8,
