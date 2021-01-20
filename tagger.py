@@ -19,6 +19,12 @@ DEFAULT_SNOMED_PATH = 'static/snomed'
 class Tagger:
 
     def __init__(self, model_path=DEFAULT_MODEL_PATH, snomed_path=DEFAULT_SNOMED_PATH):
+        """
+        Initialises the tagger.
+
+        :param model_path: the path of the NER model.
+        :param snomed_path: the path of the SNOMED model.
+        """
         print("Loading tagger...")
 
         if not os.path.isfile(model_path):
@@ -36,7 +42,7 @@ class Tagger:
         self.index = None
 
         print('Loading SNOMED...')
-        self.snomed = Snomed(DEFAULT_SNOMED_PATH)
+        self.snomed = Snomed(snomed_path)
         self.snomed.load_snomed()
         self.build_normalizer()
         print('Tagger ready.')
@@ -44,7 +50,6 @@ class Tagger:
     def build_normalizer(self):
         """
         Loads the entity linking model and builds the index used for similarity lookup.
-
         """
 
         print('Loading SNOMED definitions...')
@@ -102,40 +107,67 @@ class Tagger:
         self.index.nprobe = 10
 
     def normalize(self, query):
+        """
+        Wrapper for the actual normalisation function; it just brings the string to lowercase
+        and strips it of whitespaces. This allows to reduce the cache size since similar queries
+        ("headache" vs "Headache") will be conflated.
+
+        :param query: the string to normalise.
+        :return: an (entity_name, entity_id) pair.
+        """
         query = query.strip().lower()
         return self.normalize_cached(query)
 
     @lru_cache(maxsize=4096)
     def normalize(self, query):
+        """
+        Normalisation function. Gets a string an finds the closest SNOMED concept. The function result
+        is cached so that subsequent calls to the function with the same query should be quicker.
 
+        :param query: the string to normalise.
+        :return: an (entity_name, entity_id) pair.
+        """
+
+        # tokenise the query
         query_toks = self.tokenizer.encode_plus(query,
                                                 padding="max_length",
                                                 max_length=8,
                                                 truncation=True,
                                                 return_tensors="pt")
 
+        # get the output
         query_output = self.el_model(**query_toks)
         query_cls_rep = query_output[0][:, 0, :].cpu().detach().numpy()
 
+        # get the index of the closest vector
         nn_index = self.index.search(query_cls_rep, 1)[1][0][0]
         return self.snomed_surface_index_pairs[nn_index]
 
     def tag(self, text):
+        """
+        Finds the entities in a string and normalises them to SNOMED.
+
+        :param text: the string to tag.
+        :return: a (`text`, `entities`) pair, where `text` is the original, stripped text, and `entities` is the list
+        of entities found in the text.
+        """
+
         text = text.strip()
-
+        # split into sentences
         sentences = [sent for sent in split_single(text)]
-
         entities = []
 
         i = 1
 
         for sentence in sentences:
+            # find the entities in the sentence using Flair
             offset = text.index(sentence)
             sentence = Sentence(sentence, use_tokenizer=True)
             self.ner_model.predict(sentence)
 
             for ent in sentence.get_spans('ner'):
 
+                # for each entity, normalise it to SNOMED and return it
                 snomed_name, snomed_id = self.normalize(ent.text)
                 snomed_id = 'SCTID: ' + snomed_id
 
