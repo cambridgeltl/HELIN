@@ -10,14 +10,15 @@ The demo is based on:
 
 ## Running the demo
 
-To run the demo you **must**:
+To run the demo you must:
+- Install Docker;
 - Clone this repo;
 - Get a copy of SNOMED and place the `Snapshot` folder inside it in `src/static/snomed`;
 - Open a terminal and navigate into the `docker-scripts` directory;
 - Run `./build_image.sh`;
 - Run `./start_container.sh -s`.
 
-This will start a Flask server withing the Docker container listening on port 5000.
+This will start a Flask server within the Docker container listening on port 5000.
 If you open [http://localhost:5000]() you should see the welcome page with a link to a simple api call.
 
 **NOTE**: the first run will take a while to encode SNOMED labels. Subsequent runs will be much quicker to start 
