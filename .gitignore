@@ -1,6 +1,6 @@
-static/models/*
-static/snomed/*
-!static/snomed/README.md
+src/static/models/*
+src/static/snomed/*
+!src/static/snomed/README.md
 
 # PyCharm
 .idea/

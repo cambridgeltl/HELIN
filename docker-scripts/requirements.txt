@@ -13,7 +13,6 @@ googledrivedownloader==0.4
 gunicorn==20.0.4
 networkx==2.5
 numpy==1.19.5
-pandas==0.25.3
 segtok==1.5.10
 scikit-learn==0.21.3
 transformers==3.5.1 # This is constrained by flair. Do not upgrade
