@@ -89,7 +89,7 @@ class Tagger:
                 all_reps.append(cls_rep.cpu().detach().numpy())
 
             all_reps_emb = np.concatenate(all_reps, axis=0)
-            np.savez_compressed(cache_path, snomed_encoded=self.all_reps_emb)
+            np.savez_compressed(cache_path, snomed_encoded=all_reps_emb)
 
         # initialise Faiss index
 
