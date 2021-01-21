@@ -120,7 +120,7 @@ class Tagger:
         return self.normalize_cached(query)
 
     @lru_cache(maxsize=EL_CACHE_SIZE)
-    def normalize(self, query):
+    def normalize_cached(self, query):
         """
         Normalisation function. Gets a string an finds the closest SNOMED concept. The function result
         is cached so that subsequent calls to the function with the same query should be quicker.
