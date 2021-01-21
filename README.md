@@ -4,8 +4,8 @@ This repository contains a web API demo for performing entity linking on biomedi
 
 The demo is based on:
 - A Flask web server;
-- The NER module from [this paper](https://github.com/basaldella/bioreddit);
-- The Entity Linking code from [COMETA](https://arxiv.org/abs/2010.03295) and [SAPBERT](https://arxiv.org/abs/2010.11784)
+- The NER module from [Bioreddit](https://www.aclweb.org/anthology/D19-6205/) ([repo](https://github.com/basaldella/bioreddit));
+- The Entity Linking code from [COMETA](https://arxiv.org/abs/2010.03295) and [SAPBERT](https://arxiv.org/abs/2010.11784) ([repo](https://github.com/cambridgeltl/cometa));
 - A Docker container that runs the server.
 
 ## Running the demo
@@ -73,3 +73,17 @@ uses Flask's development server; to enhance performance and security, you should
 [deployment options](https://flask.palletsprojects.com/en/1.1.x/deploying/).
 
 Please be aware that **you should not have any expectation of security or performance** by using the provided development server.
+
+### Docker
+
+The container is based on Ubuntu 20.04. The provided scripts should be enough to build and launch the image; the code should be
+pretty self-explanatory. Some things of note are:
+- The image uses Python 3.7. This is mandatory due to the fact that later versions of Python are not supported by PyTorch at the
+time of writing. Do not force Python 3.8+ for any reason.
+- To start the container, you have three options:
+  - `./start_container.sh -s`: Starts the container and the web service.
+  - `./start_container.sh -d`: Starts the container and the web service, but in detached mode.
+  - `./start_container.sh -i`: Starts the container and starts a bash console.
+  The script will automatically mount the folder with the code. **DO NOT MOVE FILES AROUND** or the service will break.
+- The other scripts are mainly for maintanance and are used to shut down the service (`remove_container.sh`) and to log into the 
+container when started in detached mode (`login_running_container.sh`). 
