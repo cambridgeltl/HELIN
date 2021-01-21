@@ -11,6 +11,8 @@ import faiss
 import os
 import numpy as np
 
+NUM_TOKENS = 8
+EL_CACHE_SIZE = 4096
 BATCH_SIZE = 128
 DEFAULT_MODEL_PATH = 'static/models/best-model.pt'
 DEFAULT_SNOMED_PATH = 'static/snomed'
@@ -80,7 +82,7 @@ class Tagger:
             for i in tqdm(np.arange(0, len(all_names), BATCH_SIZE), desc='Encoding SNOMED labels'):
                 toks = self.tokenizer.batch_encode_plus(all_names[i:i + BATCH_SIZE],
                                                         padding="max_length",
-                                                        max_length=8,
+                                                        max_length=NUM_TOKENS,
                                                         truncation=True,
                                                         return_tensors="pt")
                 output = self.el_model(**toks)
@@ -117,7 +119,7 @@ class Tagger:
         query = query.strip().lower()
         return self.normalize_cached(query)
 
-    @lru_cache(maxsize=4096)
+    @lru_cache(maxsize=EL_CACHE_SIZE)
     def normalize(self, query):
         """
         Normalisation function. Gets a string an finds the closest SNOMED concept. The function result
@@ -130,7 +132,7 @@ class Tagger:
         # tokenise the query
         query_toks = self.tokenizer.encode_plus(query,
                                                 padding="max_length",
-                                                max_length=8,
+                                                max_length=NUM_TOKENS,
                                                 truncation=True,
                                                 return_tensors="pt")
 
