@@ -1,12 +1,15 @@
 # Entity Linking Demo
 
-This repository contains a web API demo for performing entity linking on biomedical text.
+This repository contains a web API demo for performing entity linking on biomedical text. 
 
 The demo is based on:
 - A Flask web server;
 - The NER module from [Bioreddit](https://www.aclweb.org/anthology/D19-6205/) ([repo](https://github.com/basaldella/bioreddit));
 - The Entity Linking code from [COMETA](https://arxiv.org/abs/2010.03295) and [SAPBERT](https://arxiv.org/abs/2010.11784) ([repo](https://github.com/cambridgeltl/cometa));
 - A Docker container that runs the server.
+
+Note that the NER system is trained on general-purpose text from a health-themed online forum, so it's not recommended to use this 
+system to perform biomedical NER/EL on medical data.
 
 ## Running the demo
 
@@ -24,6 +27,48 @@ To run the demo you must:
 This will start a Flask server within the Docker container listening on port 5000.
 If you open [http://localhost:5000]() you should see the welcome page with a link to a simple api call.
 
+The API can be accessed by doing simple HTTP requests, using both a browser or whatever software you prefer. 
+We provide a single endpoint, `tag_string`, with a single parameter `txt`. The call returns a JSON response with the
+detected entities and for each entity an unique ID, the NER type, its span, the SCTID of the linked SNOMED Entity, \
+and the name of the linked SNOMED entity.
+
+For example, a call to:
+```http://127.0.0.1:5000/tag_string?txt='Today I woke up with migraine and I took an aspirine.'```
+Will return
+```json
+{
+  "entities": [
+    [
+      "T1",
+      "Phenotype",
+      [
+        [
+          22,
+          30
+        ]
+      ],
+      "Migraine",
+      "SCTID: 37796009"
+    ],
+    [
+      "T2",
+      "Molecule",
+      [
+        [
+          45,
+          53
+        ]
+      ],
+      "Aspirin",
+      "SCTID: 387458008"
+    ]
+  ],
+  "text": "'Today I woke up with migraine and I took an aspirine.'"
+}
+```
+
+As you see, the engine recognises the entities `migraine` and `aspirine` (even if misspelled) and links them to SNOMED.
+
 **NOTE**: the first run will take a while to encode SNOMED labels. Subsequent runs will be much quicker to start 
 and should use much less RAM; in our tests, the webserver should run just fine with 8 GB RAM.
 
@@ -37,6 +82,19 @@ If your webserver doesn't have enough resources to build the embedding matrix yo
 transfer it manually to the webserver. You will only need to move the cache file `src/static/snomed/snomed.npz`.
 
 ## Technical Tidbits
+
+### Using the tagger without the webserver
+
+You can also use the tagger without having to start the whole webserver. The usage is straightforward:
+
+```python
+from tagger import Tagger
+
+tagger = Tagger()
+text, entities = tagger.tag("I have headache")
+```
+
+The dependencies are the ones listed in `docker-scripts/requirements.txt` (minus Flask and Gunicorn) and the file `Snomed.py`.
 
 ### Named Entity Recognition
 
