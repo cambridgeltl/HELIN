@@ -36,9 +36,9 @@ of SNOMED at the time of writing (early 2021); newer version of SNOMED, with mor
 If your webserver doesn't have enough resources to build the embedding matrix you can build it on another machine, and then 
 transfer it manually to the webserver. You will only need to move the cache file `src/static/snomed/snomed.npz`.
 
-### Technical Tidbits
+## Technical Tidbits
 
-## Named Entity Recognition
+### Named Entity Recognition
 
 The Named Entity Recognition model is based on [Flair](https://github.com/flairNLP/flair) and it's trained on a private dataset
 from [HealthUnlocked](https://healthunlocked.com/). The model is automatically downloaded from Google Drive. If the download fails, 
