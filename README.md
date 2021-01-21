@@ -36,6 +36,8 @@ of SNOMED at the time of writing (early 2021); newer version of SNOMED, with mor
 If your webserver doesn't have enough resources to build the embedding matrix you can build it on another machine, and then 
 transfer it manually to the webserver. You will only need to move the cache file `src/static/snomed/snomed.npz`.
 
+### Technical Tidbits
+
 ## Named Entity Recognition
 
 The Named Entity Recognition model is based on [Flair](https://github.com/flairNLP/flair) and it's trained on a private dataset
@@ -43,8 +45,6 @@ from [HealthUnlocked](https://healthunlocked.com/). The model is automatically d
 or if you prefer downloading the model yourself, you can find it in the Releases section of this repository, or you can get it
 from [here](https://github.com/cambridgeltl/hdr-entity-linking-demo/releases/download/v0.1-beta/best-model.pt). Please download the 
 file and copy it in `src/static/models`.
-
-## Technical Tidbits
 
 ### Query Cache 
 
@@ -62,7 +62,14 @@ variable `NUM_TOKENS` in `src/tagger.py`.
 The system works by finding the concept in SNOMED with the closest embedding to the candidate token. To speed the search, we use
 Facebook's Faiss library. We use the [faster](https://github.com/facebookresearch/faiss/wiki/Faster-search) search, which allows
 us to lookup the entire SNOMED space in ~0.1 seconds (on an Intel Core i7-7700K). However, this lookup is based on an approximate
-search and might cause misses in some edge cases. IF the library consistently fails to find the correct concept, you can disable 
-approximate search in `tagger.py` by uncommenting the relative code and commenting out the approximate search.
+search and might cause misses in some edge cases. If the library consistently fails to find the correct concept, you can disable 
+approximate search in `src/tagger.py` by uncommenting the relative code and commenting out the approximate search. However, this
+search did not cause any issues in our experiments.
 
+### Server Performance & Security
 
+Please be aware that this project is to be regarded as a technical demo only and it not meant to be production ready. The server
+uses Flask's development server; to enhance performance and security, you should choose one of Flask's 
+[deployment options](https://flask.palletsprojects.com/en/1.1.x/deploying/).
+
+Please be aware that **you should not have any expectation of security or performance** by using the provided development server.
